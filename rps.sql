@@ -50,3 +50,8 @@ insert into symbol (symbol_name, fk_game_id, fk_player_id) values ('rock', 5, 4)
 
 insert into symbol (symbol_name, fk_game_id, fk_player_id) values ('scissors', 6, 2);
 insert into symbol (symbol_name, fk_game_id, fk_player_id) values ('rock', 6, 3);
+
+select * from games g
+         join symbol s on g.pk_id = s.fk_game_id
+         join player p on s.fk_player_id = p.pk_id
+order by g.pk_id;

@@ -71,11 +71,10 @@ echo <<<HTML
 HTML;
 $results = [];
 try {
-    $result = $queryBuilder->executeQuery()->fetchAllAssociative();
+    $results = $queryBuilder->executeQuery()->fetchAllAssociative();
 } catch (\Doctrine\DBAL\Exception $e) {
     echo $e->getMessage();
 }
-var_dump($result);
 foreach ($results as $round) {
     echo <<<HTML
     <div class="gameRound">

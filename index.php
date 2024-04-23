@@ -1,7 +1,13 @@
 <?php
+namespace DucklingDesigns\WebtCoreDoctrineDBAL;
 require_once 'vendor/autoload.php';
 
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use Twig\Loader\FilesystemLoader;
 
 $connectionParams = [
     'dbname' => 'rps_db',
@@ -15,81 +21,21 @@ $conn = DriverManager::getConnection($connectionParams);
 $queryBuilder = $conn->createQueryBuilder();
 
 $queryBuilder
-    ->select('*')
-    ->from('games', 'g')
-    ->innerJoin('g', 'symbol', 's', 'g.pk_id = s.fk_game_id')
-    ->innerJoin('g', 'player', 'p', 's.fk_player_id = p.pk_id')
-    ->orderBy('g.pk_id', 'ASC');
+    ->select('r.pk_id', 'p.username as Player1', 's.symbol as Symbol1', 'p2.username as Player2', 's2.symbol as Symbol2', 'r.date_played')
+    ->from('rounds', 'r')
+    ->innerJoin('r', 'player', 'p', 'p.pk_id = r.fk_player_1')
+    ->innerJoin('r', 'symbols', 's', 'r.fk_player_1_symbol = s.pk_id')
+    ->innerJoin('r', 'player', 'p2', 'p2.pk_id = r.fk_player_2')
+    ->innerJoin('r', 'symbols', 's2', 'r.fk_player_2_symbol = s2.pk_id')
+    ->orderBy('r.pk_id', 'ASC');
 
-echo <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>RPS Tournament</title>
-    <style>
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: Bahnschrift, Arial, sans-serif;
-            color: white;
-        }
+$loader = new FilesystemLoader('./templates');
+$twig = new \Twig\Environment($loader);
 
-        .centeredContent {
-            text-align: center;
-            background: #6d98c3;
-            width: 80vw;
-            height: 90vh;
-            border-radius: 15px;
-        }
+$vars = ['rounds' => $queryBuilder->executeQuery()->fetchAllAssociative()];
 
-        h1 {
-            font-style: italic;
-            margin: 20px;
-        }
-
-        .gameRound {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-around;
-            margin: 20px;
-            border-bottom-style: solid;
-            flex-wrap: wrap;
-        }
-        p {
-            margin-left: 20px;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="centeredContent">
-        <h1>USARPS Tournament</h1>
-        <h2>16.04.2024</h2>
-HTML;
-$results = [];
 try {
-    $results = $queryBuilder->executeQuery()->fetchAllAssociative();
-} catch (\Doctrine\DBAL\Exception $e) {
+    echo $twig->render('index.html', $vars);
+} catch (Exception|SyntaxError|LoaderError|RuntimeError $e) {
     echo $e->getMessage();
 }
-foreach ($results as $round) {
-    echo <<<HTML
-    <div class="gameRound">
-        <h3>Round {$round['pk_id']}</h3>
-        <p>{$round['username']}: {$round['symbol_name']}</p>
-        <p>Winner: {$round['username']}</p>
-        <p>Date: {$round['date_played']}</p>
-    </div>
-HTML;
-}
-echo "after foreach";
-
-echo <<<HTML
-</div>
-</div>
-</body>
-</html>
-HTML;

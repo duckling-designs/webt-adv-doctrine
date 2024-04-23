@@ -43,3 +43,11 @@ insert into rounds (date_played, fk_player_1, fk_player_2, fk_player_1_symbol, f
 insert into rounds (date_played, fk_player_1, fk_player_2, fk_player_1_symbol, fk_player_2_symbol) values ('2024-04-16 12:00:00', 5, 1, 1, 3);
 insert into rounds (date_played, fk_player_1, fk_player_2, fk_player_1_symbol, fk_player_2_symbol) values ('2024-04-16 13:00:00', 2, 3, 2, 3);
 insert into rounds (date_played, fk_player_1, fk_player_2, fk_player_1_symbol, fk_player_2_symbol) values ('2024-04-16 14:00:00', 4, 5, 1, 1);
+
+select rounds.pk_id as 'Round ID', p.username as 'Player 1', s.symbol as 'Player 1 Symbol', p2.username as 'Player 2', s2.symbol as 'Player 2 Symbol', rounds.date_played as 'Date Played'
+from rounds
+join player p on p.pk_id = rounds.fk_player_1
+join symbols s on rounds.fk_player_1_symbol = s.pk_id
+join player p2 on p2.pk_id = rounds.fk_player_2
+join symbols s2 on rounds.fk_player_2_symbol = s2.pk_id
+order by rounds.pk_id;

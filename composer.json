@@ -2,7 +2,8 @@
     "name": "duckling-designs/webt-core-doctrine-dbal",
     "type": "project",
     "require": {
-        "doctrine/dbal": "^4.0"
+        "doctrine/dbal": "^4.0",
+        "twig/twig": "^3.9"
     },
     "autoload": {
         "psr-4": {

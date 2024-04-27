@@ -46,6 +46,26 @@
     <div class="centeredContent">
         <h1>USARPS Tournament</h1>
         <h2>16.04.2024</h2>
+        <form action="/index.php" method="post">
+            <label>
+                Insert new record:
+                <input type="text" name="player1" placeholder="Player 1">
+                <select name="symbol1">
+                    <option>select symbol 1</option>
+                    <option value="rock">Rock</option>
+                    <option value="paper">Paper</option>
+                    <option value="scissors">Scissors</option>
+                </select>
+                <input type="text" name="player2" placeholder="Player 2">
+                <select name="symbol2">
+                    <option>select symbol 2</option>
+                    <option value="rock">Rock</option>
+                    <option value="paper">Paper</option>
+                    <option value="scissors">Scissors</option>
+                </select>
+            </label>
+            <input type="submit" value="Submit">
+        </form>
         {% for round in rounds %}
         <div class="gameRound">
             <h3>Round {{round.pk_id}}</h3>

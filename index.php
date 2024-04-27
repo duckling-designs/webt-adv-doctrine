@@ -19,7 +19,19 @@ $connectionParams = [
 ];
 $conn = DriverManager::getConnection($connectionParams);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['deleteRound'])) {
+    $roundID = $_POST['deleteRound'];
+    try {
+        $conn->createQueryBuilder()->delete('rounds')
+            ->where('pk_id = ?')
+            ->setParameter(0, $roundID)
+            ->executeStatement();
+    } catch (Exception $e) {
+        echo 'line 30' . $e->getMessage();
+    }
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['player1']) && isset($_POST['symbol1']) && isset($_POST['player2']) && isset($_POST['symbol2'])) {
     $player1 = $_POST['player1'];
     $symbol1 = $_POST['symbol1'];
     $player2 = $_POST['player2'];

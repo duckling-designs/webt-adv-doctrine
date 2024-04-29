@@ -41,7 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['player1']) && isset($_
         try {
             $player1ID = $conn->createQueryBuilder()->select('pk_id')
                 ->from('player')
-                ->where('username = \'' . $player1 . '\'')
+                ->where('username = ?')
+                ->setParameter(0, $player1)
                 ->executeQuery()
                 ->fetchOne();
 
@@ -55,7 +56,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['player1']) && isset($_
 
             $player2ID = $conn->createQueryBuilder()->select('pk_id')
                 ->from('player')
-                ->where('username = \'' . $player2 . '\'')
+                ->where('username = ?')
+                ->setParameter(0, $player2)
                 ->executeQuery()
                 ->fetchOne();
 

@@ -16,10 +16,8 @@ class Symbol
     #[ORM\Column(name: 'name', type: 'string')]
     private string $name;
 
-    public function __construct(int $pk_id, string $name)
+    public function __construct()
     {
-        $this->pk_id = $pk_id;
-        $this->name = $name;
     }
 
     public function getPkId(): int

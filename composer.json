@@ -18,5 +18,8 @@
             "name": "Raven Burkard",
             "email": "mathematti@outlook.com"
         }
-    ]
+    ],
+    "require-dev": {
+        "doctrine/data-fixtures": "^1.7"
+    }
 }

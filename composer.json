@@ -3,7 +3,10 @@
     "type": "project",
     "require": {
         "doctrine/dbal": "^4.0",
-        "twig/twig": "^3.9"
+        "doctrine/orm": "^3",
+        "symfony/cache": "^7",
+        "twig/twig": "^3.9",
+        "twig/intl-extra": "^3.9"
     },
     "autoload": {
         "psr-4": {

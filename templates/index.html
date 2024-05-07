@@ -76,7 +76,7 @@
             <h3>Round {{round.pk_id}}</h3>
             <p>{{round.Player1}}: {{round.Symbol1}}</p>
             <p>{{round.Player2}}: {{round.Symbol2}}</p>
-            <p>Date: {{round.date_played}}</p>
+            <p>Date: {{ round.date_played|format_datetime() }}</p>
         </div>
         {% endfor %}
     </div>

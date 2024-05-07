@@ -9,6 +9,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\FilesystemLoader;
+use Twig\Extra\Intl\IntlExtension;
 
 $connectionParams = [
     'dbname' => 'rps_db',
@@ -115,6 +116,7 @@ $print
 
 $loader = new FilesystemLoader('./templates');
 $twig = new \Twig\Environment($loader);
+$twig->addExtension(new IntlExtension());
 $vars = [];
 
 try {

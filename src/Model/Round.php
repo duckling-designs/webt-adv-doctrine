@@ -2,39 +2,102 @@
 
 namespace DucklingDesigns\WebtCoreDoctrineDBAL\Model;
 
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+#[ORM\Table(name: 'rounds')]
 class Round
 {
-    public function __construct(protected int $round_id, protected string $player1, protected string $symbol1, protected string $player2, protected string $symbol2, protected string $result)
+    #[ORM\Id]
+    #[ORM\Column(name: 'pk_id', type: 'integer')]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    private int $pk_id;
+
+    #[ORM\Column(name: 'date_played', type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    private string $date_played;
+
+    #[ORM\Column(name: 'fk_player_1', type: 'integer')]
+    #[ORM\OneToOne(targetEntity: 'Player')]
+    private int $player_1;
+
+    #[ORM\Column(name: 'fk_player_2', type: 'integer')]
+    #[ORM\OneToOne(targetEntity: 'Player')]
+    private int $player_2;
+
+    #[ORM\Column(name: 'fk_player_1_symbol', type: 'integer')]
+    #[ORM\OneToOne(targetEntity: 'Symbol')]
+    private int $player_1_symbol;
+
+    #[ORM\Column(name: 'fk_player_2_symbol', type: 'integer')]
+    #[ORM\OneToOne(targetEntity: 'Symbol')]
+    private int $player_2_symbol;
+
+    public function __construct(int $player_1, int $player_2, int $player_1_symbol, int $player_2_symbol)
     {
+        $this->player_1 = $player_1;
+        $this->player_2 = $player_2;
+        $this->player_1_symbol = $player_1_symbol;
+        $this->player_2_symbol = $player_2_symbol;
     }
 
-    public function getRoundId(): int
+    public function getPkId(): int
     {
-        return $this->round_id;
+        return $this->pk_id;
     }
 
-    public function getPlayer1(): string
+    public function setPkId(int $pk_id): void
     {
-        return $this->player1;
+        $this->pk_id = $pk_id;
     }
 
-    public function getSymbol1(): string
+    public function getDatePlayed(): string
     {
-        return $this->symbol1;
+        return $this->date_played;
     }
 
-    public function getPlayer2(): string
+    public function setDatePlayed(string $date_played): void
     {
-        return $this->player2;
+        $this->date_played = $date_played;
     }
 
-    public function getSymbol2(): string
+    public function getPlayer1(): int
     {
-        return $this->symbol2;
+        return $this->player_1;
     }
 
-    public function getResult(): string
+    public function setPlayer1(int $player_1): void
     {
-        return $this->result;
+        $this->player_1 = $player_1;
+    }
+
+    public function getPlayer2(): int
+    {
+        return $this->player_2;
+    }
+
+    public function setPlayer2(int $player_2): void
+    {
+        $this->player_2 = $player_2;
+    }
+
+    public function getPlayer1Symbol(): int
+    {
+        return $this->player_1_symbol;
+    }
+
+    public function setPlayer1Symbol(int $player_1_symbol): void
+    {
+        $this->player_1_symbol = $player_1_symbol;
+    }
+
+    public function getPlayer2Symbol(): int
+    {
+        return $this->player_2_symbol;
+    }
+
+    public function setPlayer2Symbol(int $player_2_symbol): void
+    {
+        $this->player_2_symbol = $player_2_symbol;
     }
 }

@@ -1,132 +1,110 @@
 <?php
 
 namespace DucklingDesigns\WebtCoreDoctrineDBAL;
+global $entityManager;
 require_once 'vendor/autoload.php';
+require __DIR__ . '/bootstrap.php';
 
-use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Exception;
+use Doctrine\ORM\Exception\ORMException;
+use DucklingDesigns\WebtCoreDoctrineDbal\Model\Player;
+use DucklingDesigns\WebtCoreDoctrineDbal\Model\Round;
+use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extra\Intl\IntlExtension;
 
-$connectionParams = [
-    'dbname' => 'rps_db',
-    'user' => 'root',
-    'password' => '',
-    'host' => 'localhost',
-    'driver' => 'pdo_mysql',
-];
-$conn = DriverManager::getConnection($connectionParams);
-
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['deleteRound'])) {
     $roundID = $_POST['deleteRound'];
-    try {
-        $conn->createQueryBuilder()->delete('rounds')
-            ->where('pk_id = ?')
-            ->setParameter(0, $roundID)
-            ->executeStatement();
-    } catch (Exception $e) {
-        echo 'line 30' . $e->getMessage();
-    }
+    $entityManager->createQueryBuilder()->delete('DucklingDesigns\WebtCoreDoctrineDbal\Model\Round', 'r')
+        ->where('r.pk_id = ?0')
+        ->setParameter(0, $roundID)
+        ->getQuery()
+        ->execute();
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['player1']) && isset($_POST['symbol1']) && isset($_POST['player2']) && isset($_POST['symbol2'])) {
-    $player1 = $_POST['player1'];
-    $symbol1 = $_POST['symbol1'];
-    $player2 = $_POST['player2'];
-    $symbol2 = $_POST['symbol2'];
+    $player1name = $_POST['player1'];
+    $symbol1name = $_POST['symbol1'];
+    $player2name = $_POST['player2'];
+    $symbol2name = $_POST['symbol2'];
 
-    if ($player1 !== $player2) {
+    if ($player1name !== $player2name) {
         try {
-            $player1ID = $conn->createQueryBuilder()->select('pk_id')
-                ->from('player')
-                ->where('username = ?')
-                ->setParameter(0, $player1)
-                ->executeQuery()
-                ->fetchOne();
+            $player1 = $entityManager->createQueryBuilder()->select('p')
+                ->from('DucklingDesigns\WebtCoreDoctrineDbal\Model\Player', 'p')
+                ->where('p.name = ?0')
+                ->setParameter(0, $player1name)
+                ->getQuery()
+                ->getOneOrNullResult();
 
-            if (!$player1ID) {
-                $conn->createQueryBuilder()->insert('player')
-                    ->values(['username' => '?'])
-                    ->setParameter(0, $player1)
-                    ->executeStatement();
-                $player1ID = $conn->lastInsertId();
+            if (!$player1) {
+                $player1 = new Player();
+                $player1->setName($player1name);
+                $entityManager->persist($player1);
+                $entityManager->flush();
             }
 
-            $player2ID = $conn->createQueryBuilder()->select('pk_id')
-                ->from('player')
-                ->where('username = ?')
-                ->setParameter(0, $player2)
-                ->executeQuery()
-                ->fetchOne();
+            $player2 = $entityManager->createQueryBuilder()->select('p')
+                ->from('DucklingDesigns\WebtCoreDoctrineDbal\Model\Player', 'p')
+                ->where('p.name = ?0')
+                ->setParameter(0, $player2name)
+                ->getQuery()
+                ->getOneOrNullResult();
 
-            if (!$player2ID) {
-                $conn->createQueryBuilder()->insert('player')
-                    ->values(['username' => '?'])
-                    ->setParameter(0, $player2)
-                    ->executeStatement();
-                $player2ID = $conn->lastInsertId();
+            if (!$player2) {
+                $player2 = new Player();
+                $player2->setName($player2name);
+                $entityManager->persist($player2);
+                $entityManager->flush();
             }
-            $symbol1ID = $conn->createQueryBuilder()->select('symbols.pk_id')
-                ->from('symbols')
-                ->where('symbols.symbol = ?')
-                ->setParameter(0, $symbol1)
-                ->executeQuery()
-                ->fetchOne();
 
-            $symbol2ID = $conn->createQueryBuilder()->select('symbols.pk_id')
-                ->from('symbols')
-                ->where('symbols.symbol = ?')
-                ->setParameter(0, $symbol2)
-                ->executeQuery()
-                ->fetchOne();
+            $symbol1 = $entityManager->createQueryBuilder()->select('s')
+                ->from('DucklingDesigns\WebtCoreDoctrineDbal\Model\Symbol', 's')
+                ->where('s.name = ?0')
+                ->setParameter(0, $symbol1name)
+                ->getQuery()
+                ->getOneOrNullResult();
 
-            $conn->createQueryBuilder()->insert('rounds')
-                ->values([
-                    'fk_player_1' => '?',
-                    'fk_player_2' => '?',
-                    'fk_player_1_symbol' => '?',
-                    'fk_player_2_symbol' => '?',
-                    'date_played' => '?'
-                ])
-                ->setParameter(0, $player1ID)
-                ->setParameter(1, $player2ID)
-                ->setParameter(2, $symbol1ID)
-                ->setParameter(3, $symbol2ID)
-                ->setParameter(4, date('Y-m-d H:i:s'))
-                ->executeStatement();
-        } catch (Exception $e) {
-            echo 'line 86' . $e->getMessage();
+            $symbol2 = $entityManager->createQueryBuilder()->select('s')
+                ->from('DucklingDesigns\WebtCoreDoctrineDbal\Model\Symbol', 's')
+                ->where('s.name = ?0')
+                ->setParameter(0, $symbol2name)
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            $round = new Round();
+            $round->setPlayer1($player1);
+            $round->setPlayer2($player2);
+            $round->setPlayer1Symbol($symbol1);
+            $round->setPlayer2Symbol($symbol2);
+            $entityManager->persist($round);
+            $entityManager->flush();
+        } catch (ORMException $e) {
+            echo $e->getMessage();
         }
     }
-
 }
-$print = $conn->createQueryBuilder();
 
+$print = $entityManager->createQueryBuilder();
 $print
-    ->select('r.pk_id', 'p.username as Player1', 's.symbol as Symbol1', 'p2.username as Player2', 's2.symbol as Symbol2', 'r.date_played')
-    ->from('rounds', 'r')
-    ->innerJoin('r', 'player', 'p', 'p.pk_id = r.fk_player_1')
-    ->innerJoin('r', 'symbols', 's', 'r.fk_player_1_symbol = s.pk_id')
-    ->innerJoin('r', 'player', 'p2', 'p2.pk_id = r.fk_player_2')
-    ->innerJoin('r', 'symbols', 's2', 'r.fk_player_2_symbol = s2.pk_id')
+    ->select('r.pk_id', 'p.name as Player1', 's.name as Symbol1', 'p2.name as Player2', 's2.name as Symbol2', 'r.date_played')
+    ->from('DucklingDesigns\WebtCoreDoctrineDbal\Model\Round', 'r')
+    ->join('r.player_1', 'p')
+    ->join('r.player_1_symbol', 's')
+    ->join('r.player_2', 'p2')
+    ->join('r.player_2_symbol', 's2')
     ->orderBy('r.pk_id', 'ASC');
 
 $loader = new FilesystemLoader('./templates');
-$twig = new \Twig\Environment($loader);
+$twig = new Environment($loader);
 $twig->addExtension(new IntlExtension());
-$vars = [];
 
-try {
-    $vars = ['rounds' => $print->executeQuery()->fetchAllAssociative()];
-} catch (Exception $e) {
-    echo 'line 109' . $e->getMessage();
-}
+$vars = ['rounds' => $print->getQuery()->getResult()];
 
 try {
     echo $twig->render('index.html', $vars);
-} catch (Exception|SyntaxError|LoaderError|RuntimeError $e) {
-    echo 'line 115' . $e->getMessage();
+} catch (SyntaxError|LoaderError|RuntimeError $e) {
+    echo $e->getMessage();
 }
